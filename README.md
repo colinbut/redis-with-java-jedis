@@ -1,2 +1,2 @@
-# redis-with-java-jedis
-Jedis Example - using Redis with Java
+# Redis with Java using Jedis
+
