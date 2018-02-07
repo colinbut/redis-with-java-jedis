@@ -27,6 +27,14 @@ public class JedisProgram {
         // should be 32,15,233,328
         System.out.println(value);
 
+        // List
+        jedis.lpush("queue#tasks", "first task");
+        jedis.lpush("queue#tasks", "second task");
+        jedis.lpush("queue#tasks", "third task");
+
+        // pop the first task entered
+        String firstTask = jedis.rpop("queue#tasks");
+
         jedis.close();
     }
 }
