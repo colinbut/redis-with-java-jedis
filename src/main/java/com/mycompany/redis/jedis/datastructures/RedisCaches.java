@@ -7,7 +7,7 @@ package com.mycompany.redis.jedis.datastructures;
 
 import redis.clients.jedis.Jedis;
 
-public class RedisCacheExample {
+public class RedisCaches {
 
     public static void main(String[] args) {
 
