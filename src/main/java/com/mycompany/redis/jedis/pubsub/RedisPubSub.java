@@ -10,24 +10,43 @@ import redis.clients.jedis.JedisPubSub;
 
 public class RedisPubSub {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
-        String channel = "channel";
+        final String channel = "channel";
+        final boolean finishedSubscribing = false;
+        final int terminateCondition = 1;
+        final Jedis jedisSubscriber = new Jedis();
 
-        Jedis jedisSubscriber = new Jedis();
-
-        // this is a blocking method apparently hmmm...
-        jedisSubscriber.subscribe(new JedisPubSub() {
+        final JedisPubSub jedisPubSub = new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
                 super.onMessage(channel, message);
                 System.out.println("Recieved message: " + message + " on channel: " + channel);
             }
-        }, channel);
+        };
+
+        new Thread(new Runnable() {
+            public void run() {
+                while (terminateCondition != 999) {
+                    // this is a blocking method apparently hmmm...
+                    jedisSubscriber.subscribe(jedisPubSub, channel);
+                }
+            }
+        }).start();
+
+        Thread.sleep(10000);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (jedisPubSub.isSubscribed()) {
+                    jedisPubSub.unsubscribe();
+                }
+                jedisSubscriber.close();
+            }
+        }));
 
 
 
-
-        jedisSubscriber.close();
     }
 }
