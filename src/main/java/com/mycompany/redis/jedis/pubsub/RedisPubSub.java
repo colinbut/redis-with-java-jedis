@@ -30,25 +30,20 @@ public class RedisPubSub {
         final Jedis jedisSubscriber = new Jedis();
         final JedisPubSub jedisPubSub = new SubscriberHandler().getJedisPubSub();
 
-        new Thread(new Runnable() {
-            public void run() {
-                while (terminateCondition != 999) {
-                    // this is a blocking method apparently hmmm...
-                    jedisSubscriber.subscribe(jedisPubSub, CHANNEL);
-                }
+        new Thread(() -> {
+            while (terminateCondition != 999) {
+                // this is a blocking method apparently hmmm...
+                jedisSubscriber.subscribe(jedisPubSub, CHANNEL);
             }
         }).start();
 
         Thread.sleep(10000);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (jedisPubSub.isSubscribed()) {
-                    jedisPubSub.unsubscribe();
-                }
-                jedisSubscriber.close();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (jedisPubSub.isSubscribed()) {
+                jedisPubSub.unsubscribe();
             }
+            jedisSubscriber.close();
         }));
 
     }
