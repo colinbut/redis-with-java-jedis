@@ -8,6 +8,8 @@ package com.mycompany.redis.jedis.pubsub;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
+import java.util.Random;
+
 public class RedisPubSub {
 
     static final String CHANNEL = "channel";
@@ -34,7 +36,8 @@ public class RedisPubSub {
                 @Override
                 public void onMessage(String channel, String message) {
                     super.onMessage(channel, message);
-                    System.out.println("Recieved message: " + message + " on channel: " + channel);
+                    pause(2000);
+                    System.out.println(Thread.currentThread().getName() + " - Received message: [" + message + "] on channel: [" + channel + "]");
                 }
             };
         }
@@ -56,8 +59,11 @@ public class RedisPubSub {
         Jedis jedisPublisher = new Jedis();
 
         void produceMessage() {
-            String message = "message";
-            System.out.println("Publishing message: " + message);
+            int randomNumber = new Random().nextInt();
+            String message = "message:" + randomNumber;
+
+            System.out.println(Thread.currentThread().getName() + " - Publishing message: [" + message + "]");
+            pause(2000);
             jedisPublisher.publish(CHANNEL, message);
         }
 
@@ -74,6 +80,14 @@ public class RedisPubSub {
             subscriberConsumer.closeSubscriberJedis();
             publisherProducer.closePublisherJedis();
         }));
+    }
+
+    private static void pause(long msToPause){
+        try {
+            Thread.sleep(msToPause);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws InterruptedException {
